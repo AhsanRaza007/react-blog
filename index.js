@@ -8,7 +8,7 @@ const user = require('./models/user');
 const auth = require('./middleware/auth');
 const app = express();
 
-mongoose.connect(config.mongoURI, {useNewUrlParser:true, useUnifiedTopology:true, useCreateIndex:true})
+mongoose.connect(config.mongoURI, {useNewUrlParser:true, useUnifiedTopology:true, useCreateIndex:true, useFindAndModify:false})
 .then(()=>console.log('DB connected'))
 .catch(error=> console.log(error));
 
@@ -68,5 +68,14 @@ app.post('/api/users/login', (req, res)=>{
 
     })
 })
+
+app.get('/api/user/logout',auth, (req, res)=>{
+    User.findOneAndUpdate({_id:req.user._id}, {token:""}, (err, doc)=>{
+        if(err) return res.json({success:false, err})
+
+        return res.status(200).json({success:true})
+    })
+})
+
 
 app.listen(5000);
